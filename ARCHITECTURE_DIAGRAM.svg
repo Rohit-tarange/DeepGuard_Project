@@ -1,0 +1,189 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1400" viewBox="0 0 1600 1400">
+  <defs>
+    <linearGradient id="top" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0" stop-color="#172554"/>
+      <stop offset="1" stop-color="#3730a3"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#eef2ff"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#1e1b4b" flood-opacity=".16"/>
+    </filter>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M0 0 L12 6 L0 12 Z" fill="#4f46e5"/>
+    </marker>
+    <marker id="darkArrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M0 0 L12 6 L0 12 Z" fill="#475569"/>
+    </marker>
+    <style>
+      .college { font: 700 20px Arial, sans-serif; fill: #312e81; letter-spacing: 1px; }
+      .project { font: 700 32px Arial, sans-serif; fill: #ffffff; }
+      .subtitle { font: 400 16px Arial, sans-serif; fill: #e0e7ff; }
+      .heading { font: 700 22px Arial, sans-serif; fill: #1e1b4b; letter-spacing: 1px; }
+      .title { font: 700 17px Arial, sans-serif; fill: #1e293b; }
+      .body { font: 400 14px Arial, sans-serif; fill: #334155; }
+      .small { font: 400 12px Arial, sans-serif; fill: #64748b; }
+      .step { font: 700 15px Arial, sans-serif; fill: #312e81; }
+      .input { fill: #eff6ff; stroke: #2563eb; stroke-width: 2; }
+      .service { fill: #eef2ff; stroke: #4f46e5; stroke-width: 2; }
+      .model { fill: #faf5ff; stroke: #9333ea; stroke-width: 2; }
+      .store { fill: #f0fdf4; stroke: #16a34a; stroke-width: 2; }
+      .external { fill: #fff7ed; stroke: #ea580c; stroke-width: 2; }
+      .output { fill: #ecfeff; stroke: #0891b2; stroke-width: 2; }
+      .flow { fill: none; stroke: #4f46e5; stroke-width: 2.5; marker-end: url(#arrow); }
+      .darkflow { fill: none; stroke: #475569; stroke-width: 2.2; marker-end: url(#darkArrow); }
+      .dash { fill: none; stroke: #94a3b8; stroke-width: 2; stroke-dasharray: 8 6; marker-end: url(#darkArrow); }
+      .boundary { fill: url(#panel); stroke: #c7d2fe; stroke-width: 2; }
+    </style>
+  </defs>
+
+  <rect width="1600" height="1400" fill="#f8fafc"/>
+  <rect x="0" y="0" width="1600" height="72" fill="#eef2ff"/>
+  <text x="800" y="30" text-anchor="middle" class="college">DEPARTMENT OF COMPUTER ENGINEERING  |  ACADEMIC PROJECT</text>
+  <text x="0" y="72" class="project" transform="translate(0 0)"> </text>
+  <rect x="0" y="72" width="1600" height="118" fill="url(#top)"/>
+  <text x="800" y="120" text-anchor="middle" class="project">DeepGuard AI</text>
+  <text x="800" y="151" text-anchor="middle" class="subtitle">Multi-Model Deepfake Detection and Fact-Checking System</text>
+  <text x="800" y="176" text-anchor="middle" class="subtitle">Architecture Diagram</text>
+
+  <text x="55" y="235" class="heading">SYSTEM ARCHITECTURE</text>
+
+  <!-- User layer -->
+  <rect x="55" y="265" width="280" height="120" rx="14" class="input" filter="url(#shadow)"/>
+  <text x="195" y="298" text-anchor="middle" class="title">User / Researcher</text>
+  <text x="195" y="325" text-anchor="middle" class="body">Upload media or enter a claim</text>
+  <text x="195" y="349" text-anchor="middle" class="small">Video • Audio • Text</text>
+  <text x="195" y="370" text-anchor="middle" class="small">Sign in through Clerk</text>
+
+  <!-- Frontend -->
+  <rect x="415" y="265" width="320" height="120" rx="14" class="service" filter="url(#shadow)"/>
+  <text x="575" y="298" text-anchor="middle" class="title">React + Vite Dashboard</text>
+  <text x="575" y="325" text-anchor="middle" class="body">Deepfake Detection UI</text>
+  <text x="575" y="349" text-anchor="middle" class="small">Video, audio and Tathya tabs</text>
+  <text x="575" y="370" text-anchor="middle" class="small">Progress, scores and reports</text>
+
+  <!-- Main backend -->
+  <rect x="815" y="265" width="320" height="120" rx="14" class="service" filter="url(#shadow)"/>
+  <text x="975" y="298" text-anchor="middle" class="title">Main FastAPI Backend</text>
+  <text x="975" y="325" text-anchor="middle" class="body">Port 8000</text>
+  <text x="975" y="349" text-anchor="middle" class="small">/predict • /fact-check • /check</text>
+  <text x="975" y="370" text-anchor="middle" class="small">Validation, routing and response API</text>
+
+  <!-- Audio backend -->
+  <rect x="1215" y="265" width="330" height="120" rx="14" class="service" filter="url(#shadow)"/>
+  <text x="1380" y="298" text-anchor="middle" class="title">Audio FastAPI Service</text>
+  <text x="1380" y="325" text-anchor="middle" class="body">Port 8001</text>
+  <text x="1380" y="349" text-anchor="middle" class="small">Upload, background jobs</text>
+  <text x="1380" y="370" text-anchor="middle" class="small">Status polling and audio results</text>
+
+  <path d="M335 325 H405" class="flow"/>
+  <path d="M735 325 H805" class="flow"/>
+  <path d="M1135 325 H1205" class="flow"/>
+
+  <!-- Analysis layer -->
+  <text x="55" y="450" class="heading">ANALYSIS AND INTELLIGENCE LAYER</text>
+  <rect x="55" y="480" width="490" height="305" rx="18" class="boundary"/>
+  <text x="80" y="515" class="step">1  VISUAL DEEPFAKE PIPELINE</text>
+  <rect x="80" y="545" width="195" height="82" rx="11" class="model"/>
+  <text x="177" y="578" text-anchor="middle" class="title">Frame Sampler</text>
+  <text x="177" y="601" text-anchor="middle" class="small">OpenCV / PIL</text>
+  <rect x="320" y="545" width="195" height="82" rx="11" class="model"/>
+  <text x="417" y="578" text-anchor="middle" class="title">HF Classifier</text>
+  <text x="417" y="601" text-anchor="middle" class="small">Per-frame probability</text>
+  <rect x="80" y="670" width="195" height="82" rx="11" class="model"/>
+  <text x="177" y="703" text-anchor="middle" class="title">Frame Aggregation</text>
+  <text x="177" y="726" text-anchor="middle" class="small">Trimmed mean + threshold</text>
+  <rect x="320" y="670" width="195" height="82" rx="11" class="output"/>
+  <text x="417" y="703" text-anchor="middle" class="title">Video Verdict</text>
+  <text x="417" y="726" text-anchor="middle" class="small">REAL / FAKE + confidence</text>
+  <path d="M275 586 H310" class="flow"/>
+  <path d="M417 637 V660" class="flow"/>
+  <path d="M275 711 H310" class="flow"/>
+
+  <rect x="555" y="480" width="490" height="305" rx="18" class="boundary"/>
+  <text x="580" y="515" class="step">2  AUDIO AND SPEECH PIPELINE</text>
+  <rect x="580" y="545" width="195" height="82" rx="11" class="model"/>
+  <text x="677" y="578" text-anchor="middle" class="title">Audio Validation</text>
+  <text x="677" y="601" text-anchor="middle" class="small">Format and metadata checks</text>
+  <rect x="820" y="545" width="195" height="82" rx="11" class="model"/>
+  <text x="917" y="578" text-anchor="middle" class="title">Speech-to-Text</text>
+  <text x="917" y="601" text-anchor="middle" class="small">Whisper + VAD</text>
+  <rect x="580" y="670" width="195" height="82" rx="11" class="model"/>
+  <text x="677" y="703" text-anchor="middle" class="title">Acoustic Forensics</text>
+  <text x="677" y="726" text-anchor="middle" class="small">Pitch and spectral artifacts</text>
+  <rect x="820" y="670" width="195" height="82" rx="11" class="output"/>
+  <text x="917" y="703" text-anchor="middle" class="title">Audio Report</text>
+  <text x="917" y="726" text-anchor="middle" class="small">Authenticity + claims</text>
+  <path d="M775 586 H810" class="flow"/>
+  <path d="M917 637 V660" class="flow"/>
+  <path d="M775 711 H810" class="flow"/>
+
+  <rect x="1055" y="480" width="490" height="305" rx="18" class="boundary"/>
+  <text x="1080" y="515" class="step">3  TATHYA FACT-CHECKING PIPELINE</text>
+  <rect x="1080" y="545" width="195" height="82" rx="11" class="model"/>
+  <text x="1177" y="578" text-anchor="middle" class="title">Claim Analysis</text>
+  <text x="1177" y="601" text-anchor="middle" class="small">LangGraph agent</text>
+  <rect x="1320" y="545" width="195" height="82" rx="11" class="external"/>
+  <text x="1417" y="578" text-anchor="middle" class="title">Evidence Search</text>
+  <text x="1417" y="601" text-anchor="middle" class="small">Tavily • NewsAPI • Wikidata</text>
+  <rect x="1080" y="670" width="195" height="82" rx="11" class="model"/>
+  <text x="1177" y="703" text-anchor="middle" class="title">Evidence Review</text>
+  <text x="1177" y="726" text-anchor="middle" class="small">Consistency and relevance</text>
+  <rect x="1320" y="670" width="195" height="82" rx="11" class="output"/>
+  <text x="1417" y="703" text-anchor="middle" class="title">Fact Verdict</text>
+  <text x="1417" y="726" text-anchor="middle" class="small">TRUE / FALSE / UNVERIFIED</text>
+  <path d="M1275 586 H1310" class="flow"/>
+  <path d="M1417 637 V660" class="flow"/>
+  <path d="M1320 711 H1285" class="flow"/>
+
+  <path d="M975 385 V435 H417 V535" class="darkflow"/>
+  <path d="M1380 385 V435 H917 V535" class="darkflow"/>
+  <path d="M975 385 V435 H1177 V535" class="darkflow"/>
+
+  <!-- Data and result layer -->
+  <text x="55" y="850" class="heading">DATA, IDENTITY AND OUTPUT LAYER</text>
+  <rect x="55" y="880" width="280" height="105" rx="14" class="external" filter="url(#shadow)"/>
+  <text x="195" y="914" text-anchor="middle" class="title">Clerk Authentication</text>
+  <text x="195" y="940" text-anchor="middle" class="body">Identity and sessions</text>
+  <text x="195" y="962" text-anchor="middle" class="small">Sign up • Sign in • User profile</text>
+  <rect x="385" y="880" width="280" height="105" rx="14" class="store" filter="url(#shadow)"/>
+  <text x="525" y="914" text-anchor="middle" class="title">Runtime Job State</text>
+  <text x="525" y="940" text-anchor="middle" class="body">Temporary analysis progress</text>
+  <text x="525" y="962" text-anchor="middle" class="small">No application database required</text>
+  <rect x="715" y="880" width="280" height="105" rx="14" class="store" filter="url(#shadow)"/>
+  <text x="855" y="914" text-anchor="middle" class="title">Temporary Storage</text>
+  <text x="855" y="940" text-anchor="middle" class="body">Validated media and job state</text>
+  <text x="855" y="962" text-anchor="middle" class="small">Uploads removed after analysis</text>
+  <rect x="1045" y="880" width="500" height="105" rx="14" class="output" filter="url(#shadow)"/>
+  <text x="1295" y="914" text-anchor="middle" class="title">Unified Decision-Support Report</text>
+  <text x="1295" y="940" text-anchor="middle" class="body">Verdict • confidence • explanation • source attribution</text>
+  <text x="1295" y="962" text-anchor="middle" class="small">Frame scores • audio signals • evidence-backed fact check</text>
+
+  <path d="M195 385 V870" class="dash"/>
+  <path d="M525 985 V1015 H975 V385" class="dash"/>
+  <path d="M855 985 V1015 H975" class="dash"/>
+  <path d="M417 762 V870" class="dash"/>
+  <path d="M917 762 V870" class="dash"/>
+  <path d="M1417 762 V870" class="dash"/>
+  <path d="M995 932 H1035" class="flow"/>
+
+  <!-- Poster-style algorithm -->
+  <rect x="55" y="1040" width="1490" height="295" rx="16" fill="#ffffff" stroke="#c7d2fe" stroke-width="2" filter="url(#shadow)"/>
+  <text x="85" y="1082" class="heading">ALGORITHM / FLOWCHART</text>
+  <text x="85" y="1120" class="step">1.</text>
+  <text x="112" y="1120" class="body">User authenticates with Clerk and opens the DeepGuard dashboard.</text>
+  <text x="85" y="1155" class="step">2.</text>
+  <text x="112" y="1155" class="body">User uploads video/audio or submits a text claim; the React client sends it to the correct API.</text>
+  <text x="85" y="1190" class="step">3.</text>
+  <text x="112" y="1190" class="body">FastAPI validates the input, stores it temporarily, and starts the required analysis pipeline.</text>
+  <text x="85" y="1225" class="step">4.</text>
+  <text x="112" y="1225" class="body">Video frames are sampled and classified by the Hugging Face model; scores are aggregated into REAL or FAKE.</text>
+  <text x="85" y="1260" class="step">5.</text>
+  <text x="112" y="1260" class="body">Audio is transcribed and examined for acoustic artifacts; claims are checked by the Tathya agent.</text>
+  <text x="85" y="1295" class="step">6.</text>
+  <text x="112" y="1295" class="body">The dashboard displays confidence, forensic signals, evidence sources and the final unified report.</text>
+  <rect x="85" y="1308" width="1430" height="2" fill="#c7d2fe"/>
+  <text x="800" y="1325" text-anchor="middle" class="small">DeepGuard supports human review by combining multimodal model predictions with explainable evidence.</text>
+</svg>

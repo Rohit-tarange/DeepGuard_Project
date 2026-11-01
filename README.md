@@ -24,6 +24,16 @@ from its own directory.
 > The deepfake models can produce false positives and false negatives,
 > especially for content outside their training distribution.
 
+### Poster architecture diagram
+
+The poster-ready vector architecture diagram is available at
+[ARCHITECTURE_DIAGRAM.svg](./ARCHITECTURE_DIAGRAM.svg). It shows the main
+DeepGuard dashboard, Clerk-managed authentication, the separate audio service,
+the Tathya fact-checking service, local/runtime processing state, external
+evidence providers, and the unified decision-support output. MongoDB and SQL
+database components are intentionally not shown because they are not used in
+the deployed project architecture.
+
 ## Contents
 
 - [Workspace layout](#workspace-layout)
@@ -85,8 +95,6 @@ Open a terminal:
 
 ```powershell
 Set-Location "C:\Users\ashwi\Downloads\Major Project\Major Project\Multi-model-Deepfake-Detection-Project-main\backend"
-$env:MONGODB_URI = "mongodb://127.0.0.1:27017"
-$env:MONGODB_DB = "Deepfake_Detection_Project"
 .\venv311\Scripts\python.exe -m uvicorn main:app --host 127.0.0.1 --port 8000
 ```
 
@@ -100,9 +108,8 @@ pip install -r requirements.txt
 python -m uvicorn main:app --host 127.0.0.1 --port 8000
 ```
 
-MongoDB must be running. For MongoDB Atlas, copy
-`backend\.env.example` to `backend\.env` and set `MONGODB_URI` and
-`MONGODB_DB`.
+Authentication is handled by Clerk in the frontend. No MongoDB or SQL
+database is required for the project setup described here.
 
 ### 2. Main frontend
 
@@ -149,7 +156,7 @@ with the main dashboard.
 This is the primary integrated application. Its frontend is React 19 with
 Vite. Its backend is FastAPI and includes:
 
-- user signup and signin backed by MongoDB;
+- Clerk-managed user authentication and sessions;
 - video/GIF/WebP deepfake prediction;
 - text prediction;
 - fact-checking routes;
@@ -161,8 +168,8 @@ Vite. Its backend is FastAPI and includes:
 | Method | Endpoint | Purpose |
 | --- | --- | --- |
 | `GET` | `/health` | Backend liveness |
-| `POST` | `/signup` | Create a MongoDB user |
-| `POST` | `/signin` | Authenticate a user |
+| `POST` | `/signup` | Legacy backend route; not used by Clerk authentication |
+| `POST` | `/signin` | Legacy backend route; not used by Clerk authentication |
 | `POST` | `/predict` | Analyze an uploaded video, GIF, or WebP |
 | `POST` | `/predict-text` | Analyze text |
 | `POST` | `/fact-check` | Start a fact-checking workflow |
@@ -472,11 +479,11 @@ other, or use the alternate port selected for your setup.
 - Copy `.env.example` to `.env` only inside the application that owns it.
 - Do not commit `.env`, API keys, database passwords, model tokens, or
   authentication secrets.
-- Use MongoDB locally or MongoDB Atlas for the Multi-model application.
+- Configure Clerk publishable/authentication settings in the frontend.
 - Tathya requires provider credentials for the configured LLM/search tools.
 - DeepFocus downloads its Hugging Face model on first use.
-- The audio detector can use SQLite by default and supports optional search
-  provider configuration.
+- The audio detector stores uploaded media and temporary analysis state locally
+  and supports optional search provider configuration.
 - Uploaded files and generated results may contain sensitive personal or
   biometric information. Keep local upload directories out of public hosting.
 
@@ -487,12 +494,6 @@ other, or use the alternate port selected for your setup.
 Identify the conflicting process and either stop it or pass a different
 `--port` value to Uvicorn/Vite. The applications intentionally have
 independent defaults and cannot all use port 8000 or 5173 simultaneously.
-
-### MongoDB connection errors
-
-Confirm MongoDB is running, verify `MONGODB_URI`, and check that the database
-name is `Deepfake_Detection_Project`. For Atlas, verify network access rules
-and credentials.
 
 ### Model loading or Hugging Face errors
 
@@ -540,4 +541,3 @@ The original guides remain useful for implementation details:
 - `Major Project\DeepFocus_Runnable_HuggingFace\multi-signal-deepfake-detection-main\RUN_PROJECT.md`
 - `Major Project\Tathya-Fact-Checking-System-main\ENV_SETUP_GUIDE.md`
 - `Major Project\fake-news-audio-detector-main\fake-news-audio-detector-main\README.md`
-

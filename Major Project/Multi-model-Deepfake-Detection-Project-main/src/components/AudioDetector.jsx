@@ -288,10 +288,11 @@ function PipelineProgress({ statusData }) {
 function VerdictBanner({ jobData, onReset }) {
     const auth = jobData?.audio_authenticity_result
     const claims = jobData?.claims || []
-    const trueCount = claims.filter((c) => c.verdict === 'TRUE').length
-    const falseCount = claims.filter((c) => c.verdict === 'FALSE').length
-    const isSynthetic = auth?.verdict === 'SYNTHETIC' || (auth?.fake_probability ?? 0) > 0.5
-    const claimsReal = falseCount === 0 || trueCount >= falseCount
+    const trueCount = claims.filter((c) => getClaimVerdict(c) === 'TRUE').length
+    const falseCount = claims.filter((c) => ['FALSE', 'MISLEADING', 'CONFLICTING'].includes(getClaimVerdict(c))).length
+    const unverifiedCount = claims.filter((c) => getClaimVerdict(c) === 'UNVERIFIED').length
+    const isSynthetic = (auth?.ai_probability ?? auth?.fake_probability ?? 0) > 0.5
+    const claimsReal = falseCount === 0
     const overallReal = !isSynthetic && claimsReal
 
     return (
@@ -307,7 +308,9 @@ function VerdictBanner({ jobData, onReset }) {
                     </h2>
                     <p className="text-sm text-slate-500 mt-1">
                         {overallReal
-                            ? 'Voice appears genuine. Claims show no major contradictions.'
+                            ? 'Voice appears genuine. Claims are supported by available evidence.'
+                            : unverifiedCount > 0 && falseCount === 0
+                                ? 'Voice appears genuine, but some claims could not be verified from available evidence.'
                             : 'Potential synthetic voice or false claims detected. Review forensics below.'}
                     </p>
                 </div>
@@ -325,7 +328,7 @@ function VerdictBanner({ jobData, onReset }) {
                 </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-4 mt-5 pt-5 border-t border-slate-100">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-5 pt-5 border-t border-slate-100">
                 <div className="text-center">
                     <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Voice</div>
                     <div className={`font-display font-bold text-xl mt-1 ${isSynthetic ? 'text-rose-600' : 'text-emerald-600'}`}>
@@ -333,12 +336,16 @@ function VerdictBanner({ jobData, onReset }) {
                     </div>
                 </div>
                 <div className="text-center">
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Claims Verified</div>
-                    <div className="font-display font-bold text-xl mt-1 text-emerald-600">{trueCount}</div>
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Verified Claim</div>
+                    <div className="font-display font-bold text-xl mt-1 text-emerald-600">{trueCount > 0 ? 'TRUE' : '—'}</div>
                 </div>
                 <div className="text-center">
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Claims Disputed</div>
-                    <div className="font-display font-bold text-xl mt-1 text-rose-600">{falseCount}</div>
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Disputed Claim</div>
+                    <div className="font-display font-bold text-xl mt-1 text-rose-600">{falseCount > 0 ? 'FALSE' : '—'}</div>
+                </div>
+                <div className="text-center">
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Unverified Claim</div>
+                    <div className="font-display font-bold text-xl mt-1 text-amber-600">{unverifiedCount > 0 ? 'UNVERIFIED' : '—'}</div>
                 </div>
             </div>
         </motion.div>
@@ -388,6 +395,14 @@ const VERDICT_STYLE = {
     CONFLICTING: 'bg-violet-50 text-violet-700 border border-violet-200',
 }
 
+function getClaimVerdict(claim) {
+    return claim.verdict || claim.verification?.classification || 'UNVERIFIED'
+}
+
+function getClaimText(claim) {
+    return claim.claim || claim.claim_text || ''
+}
+
 function ClaimsExplorer({ claims }) {
     const [selected, setSelected] = useState(null)
     useEffect(() => { if (claims.length > 0) setSelected(claims[0]) }, [claims])
@@ -418,30 +433,34 @@ function ClaimsExplorer({ claims }) {
                         onClick={() => setSelected(c)}
                         className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all text-xs ${selected === c ? 'bg-indigo-50/80 border-indigo-300 ring-2 ring-indigo-200/50' : 'bg-white/70 border-slate-100 hover:border-indigo-200'}`}
                     >
-                        <span className="font-medium text-slate-800 truncate pr-2">{c.claim}</span>
-                        <span className={`px-2 py-0.5 rounded-full font-bold text-[10px] shrink-0 ${VERDICT_STYLE[c.verdict] || VERDICT_STYLE.UNVERIFIED}`}>
-                            {c.verdict || 'UNVERIFIED'}
+                        <span className="font-medium text-slate-800 truncate pr-2">{getClaimText(c)}</span>
+                        <span className={`px-2 py-0.5 rounded-full font-bold text-[10px] shrink-0 ${VERDICT_STYLE[getClaimVerdict(c)] || VERDICT_STYLE.UNVERIFIED}`}>
+                            {getClaimVerdict(c)}
                         </span>
                     </li>
                 ))}
             </ul>
             {selected && (
                 <div className="space-y-3 overflow-y-auto">
+                    <div className={`flex items-center justify-between p-3.5 rounded-xl ${VERDICT_STYLE[getClaimVerdict(selected)] || VERDICT_STYLE.UNVERIFIED}`}>
+                        <span className="text-[11px] font-bold uppercase tracking-wider">Verification Result</span>
+                        <span className="font-display font-bold">{getClaimVerdict(selected)}</span>
+                    </div>
                     <div className="p-3.5 rounded-xl bg-white/70 border border-slate-100">
                         <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Claim Text</div>
-                        <p className="text-sm text-slate-800 font-medium">{selected.claim}</p>
+                        <p className="text-sm text-slate-800 font-medium">{getClaimText(selected)}</p>
                     </div>
-                    {selected.explanation && (
+                    {(selected.explanation || selected.verification?.explanation) && (
                         <div className="p-3.5 rounded-xl bg-white/70 border border-slate-100">
                             <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">AI Explanation</div>
-                            <p className="text-xs text-slate-600 leading-relaxed">{selected.explanation}</p>
+                            <p className="text-xs text-slate-600 leading-relaxed">{selected.explanation || selected.verification.explanation}</p>
                         </div>
                     )}
-                    {selected.evidence?.length > 0 && (
+                    {(selected.evidence?.length > 0 || selected.verification?.sources?.length > 0) && (
                         <div className="p-3.5 rounded-xl bg-white/70 border border-slate-100">
                             <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Evidence Sources</div>
                             <ul className="space-y-1.5">
-                                {selected.evidence.slice(0, 3).map((ev, i) => (
+                                {(selected.evidence || selected.verification.sources).slice(0, 3).map((ev, i) => (
                                     <li key={i} className="text-xs text-slate-600">
                                         <span className="font-semibold text-slate-800">{ev.title || ev.url}</span>{' '}
                                         {ev.url && (
@@ -461,9 +480,10 @@ function ClaimsExplorer({ claims }) {
 // ─── Acoustic Forensics ────────────────────────────────────────────────────────
 function AcousticForensics({ authenticityResult }) {
     if (!authenticityResult) return null
-    const isSynthetic = authenticityResult.verdict === 'SYNTHETIC' || (authenticityResult.fake_probability ?? 0) > 0.5
-    const prob = authenticityResult.fake_probability ?? 0
-    const features = authenticityResult.features || {}
+    const prob = authenticityResult.ai_probability ?? authenticityResult.fake_probability ?? 0
+    const confidence = authenticityResult.detection_confidence ?? authenticityResult.confidence
+    const isSynthetic = prob > 0.5
+    const features = authenticityResult.acoustic_features || authenticityResult.features || {}
 
     return (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
@@ -487,8 +507,8 @@ function AcousticForensics({ authenticityResult }) {
                 <div className="glass-strong rounded-xl p-4 shadow-sm">
                     <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Confidence</div>
                     <div className="font-display text-2xl font-bold mt-1 text-indigo-600">
-                        {authenticityResult.confidence !== undefined
-                            ? `${(authenticityResult.confidence * 100).toFixed(0)}%`
+                        {confidence !== undefined
+                            ? `${(confidence * 100).toFixed(0)}%`
                             : 'N/A'}
                     </div>
                 </div>
@@ -562,7 +582,9 @@ export default function AudioDetector({ onAudioScanCompleted }) {
                     const results = await getAnalysisJobResults(jobId)
                     setJobResults(results)
                     if (onAudioScanCompleted) {
-                        const fakeProb = results.audio_authenticity_result?.fake_probability ?? 0
+                        const fakeProb = results.audio_authenticity_result?.ai_probability
+                            ?? results.audio_authenticity_result?.fake_probability
+                            ?? 0
                         onAudioScanCompleted({
                             id: Date.now(),
                             type: 'Audio',
@@ -574,7 +596,7 @@ export default function AudioDetector({ onAudioScanCompleted }) {
                             sources: [],
                             breakdown: [
                                 { name: 'Acoustic forensics', score: (1 - fakeProb).toFixed(2) },
-                                { name: 'Claims', score: results.claims?.length ? `${results.claims.filter(c => c.verdict === 'TRUE').length}/${results.claims.length} TRUE` : 'N/A' },
+                                { name: 'Claims', score: results.claims?.length ? `${results.claims.filter(c => getClaimVerdict(c) === 'TRUE').length}/${results.claims.length} TRUE` : 'N/A' },
                             ],
                         })
                     }

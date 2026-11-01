@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { UserButton, useUser } from '@clerk/clerk-react'
 import {
     Logo,
@@ -144,6 +144,9 @@ export default function DeepfakeDashboard({ user: userProp }) {
           }
         : userProp
     const [activeTab, setActiveTab] = useState('dashboard')
+    const historyStorageKey = user?.email
+        ? `deepguard_detection_history_${user.email.toLowerCase()}`
+        : null
 
     const [history, setHistory] = useState([
         {
@@ -217,6 +220,62 @@ export default function DeepfakeDashboard({ user: userProp }) {
 
     const [selectedHistoryItem, setSelectedHistoryItem] = useState(history[0])
 
+    useEffect(() => {
+        if (!historyStorageKey) return
+
+        try {
+            const savedHistory = JSON.parse(localStorage.getItem(historyStorageKey) || '[]')
+            if (!Array.isArray(savedHistory)) return
+
+            setHistory((currentHistory) => {
+                const savedIds = new Set(savedHistory.map((item) => item.id))
+                const mergedHistory = [
+                    ...savedHistory,
+                    ...currentHistory.filter((item) => !savedIds.has(item.id)),
+                ].slice(0, 25)
+                try {
+                    localStorage.setItem(historyStorageKey, JSON.stringify(mergedHistory))
+                } catch (error) {
+                    console.error('Unable to save restored detection history:', error)
+                }
+                setSelectedHistoryItem(mergedHistory[0])
+                return mergedHistory
+            })
+        } catch (error) {
+            console.error('Unable to restore detection history:', error)
+        }
+    }, [historyStorageKey])
+
+    const addHistoryItem = (newItem) => {
+        setHistory((currentHistory) => {
+            const updatedHistory = [newItem, ...currentHistory].slice(0, 25)
+            if (historyStorageKey) {
+                try {
+                    localStorage.setItem(historyStorageKey, JSON.stringify(updatedHistory))
+                } catch (error) {
+                    console.error('Unable to save detection history:', error)
+                }
+            }
+            return updatedHistory
+        })
+        setSelectedHistoryItem(newItem)
+    }
+
+    const removeHistoryItem = (itemId) => {
+        setHistory((currentHistory) => {
+            const updatedHistory = currentHistory.filter((item) => item.id !== itemId)
+            if (historyStorageKey) {
+                try {
+                    localStorage.setItem(historyStorageKey, JSON.stringify(updatedHistory))
+                } catch (error) {
+                    console.error('Unable to delete detection history item:', error)
+                }
+            }
+            return updatedHistory
+        })
+        setSelectedHistoryItem((currentItem) => currentItem?.id === itemId ? null : currentItem)
+    }
+
     const [uploading, setUploading] = useState(false)
     const [uploadMessage, setUploadMessage] = useState('')
     const [uploadError, setUploadError] = useState('')
@@ -275,8 +334,7 @@ export default function DeepfakeDashboard({ user: userProp }) {
                     { name: 'Raw probability', score: data.raw_prob ? data.raw_prob.toFixed(3) : '0.85' },
                 ],
             }
-            setHistory((s) => [newItem, ...s].slice(0, 25))
-            setSelectedHistoryItem(newItem)
+            addHistoryItem(newItem)
             setUploadMessage(`Done: ${file.name} -> ${data.verdict} (${Math.round(data.confidence)}%)`)
         } catch (error) {
             console.error(error)
@@ -316,8 +374,7 @@ export default function DeepfakeDashboard({ user: userProp }) {
                 decomposition: data.decomposition || [],
             }
 
-            setHistory((s) => [newItem, ...s].slice(0, 25))
-            setSelectedHistoryItem(newItem)
+            addHistoryItem(newItem)
             setUploadMessage(`Done: Tathya verdict -> ${data.verdict} (${Math.round(data.confidence || 85)}%)`)
             setQuickClaim('')
         } catch (error) {
@@ -330,8 +387,7 @@ export default function DeepfakeDashboard({ user: userProp }) {
     }
 
     function handleTathyaVerificationComplete(newItem) {
-        setHistory((s) => [newItem, ...s].slice(0, 25))
-        setSelectedHistoryItem(newItem)
+        addHistoryItem(newItem)
     }
 
     const modelStats = {
@@ -674,7 +730,7 @@ export default function DeepfakeDashboard({ user: userProp }) {
                                                     </div>
                                                 </div>
 
-                                                <div className="text-right shrink-0">
+                                                <div className="flex items-center gap-2 text-right shrink-0">
                                                     <div
                                                         className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${
                                                             isReal
@@ -685,6 +741,18 @@ export default function DeepfakeDashboard({ user: userProp }) {
                                                         <span>{h.tathyaVerdict || h.result}</span>
                                                         <span className="opacity-70 font-normal">({h.score}%)</span>
                                                     </div>
+                                                    <button
+                                                        type="button"
+                                                        onClick={(event) => {
+                                                            event.stopPropagation()
+                                                            removeHistoryItem(h.id)
+                                                        }}
+                                                        className="px-2 py-1 rounded-lg text-xs font-semibold text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                                                        aria-label={`Delete ${h.name} from detection history`}
+                                                        title="Delete from history"
+                                                    >
+                                                        Delete
+                                                    </button>
                                                 </div>
                                             </li>
                                         )
